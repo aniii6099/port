@@ -54,15 +54,30 @@ const Contact = ({ data }) => {
     e.preventDefault();
     setLoading(true);
 
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const dataResp = await res.json().catch(() => ({}));
+      if (!res.ok || dataResp?.ok !== true) {
+        throw new Error(dataResp?.error || 'Failed to send message');
+      }
+
       toast({
-        title: "Message Sent!",
+        title: 'Message Sent!',
         description: "Thank you for reaching out. I'll get back to you soon!",
       });
-      setFormData({ name: "", email: "", subject: "", message: "" });
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (err) {
+      toast({
+        title: 'Sending failed',
+        description: 'Please try again or email me directly.',
+      });
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   const handleChange = (e) => {
